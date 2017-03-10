@@ -1,13 +1,13 @@
 """Management utility for Neo4j databases.
 
 Usage:
-  neo4j-db-manager.py [--db-path=PATH]      ls
-  neo4j-db-manager.py [--conf-file=PATH]    sw DATABASE
-  neo4j-db-manager.py [--db-path=PATH] [-f] rm DATABASE
+  neo4j-db-manager.py [--db-path=PATH] [--conf-file=PATH] ls
+  neo4j-db-manager.py [--conf-file=PATH] sw DATABASE
+  neo4j-db-manager.py [-f] [--db-path=PATH] rm DATABASE
 
 This tool offers three verbs:
 
-1. List (ls):   List available Neo4j databases.
+1. List (ls): List available Neo4j databases.
 2. Switch (sw): Switch the active Neo4j database using sed.
 3. Remove (rm): Delete a Neo4j database.
 
@@ -69,29 +69,29 @@ if __name__ == "__main__":
         neo_conf_file = os.path.expanduser(str(args["--conf-file"]))
     
     # 3. Make sure the necessary data exists
+    # Database path
     if args["ls"] or args["rm"]:
-        if neo_db_basedir is None:
-            quit("Error: Neo4j database path was not set. Use either",
+        if neo_db_basedir is None or not os.path.isdir(neo_db_basedir):
+            quit("Error: Neo4j database path was not found. Use either",
                  "~/.neo4jdbprofile or --db-path to accomplish this.")
-        elif not os.path.isdir(neo_db_basedir):
-            quit("Error: Neo4j database path is not a directory. Used %s."
-                % ("~/.neo4jdbprofile" if args["--db-path"] is None else "--db-path"))
-    
-    if args["sw"]:
-        if neo_conf_file is None:
-            quit("Error: Neo4j config path was not set. Use either",
+
+    # Config file path
+    if args["ls"] or args["sw"]:
+        if neo_conf_file is None or not os.path.exists(neo_conf_file):
+            quit("Error: Neo4j config path was not found. Use either",
                  "~/.neo4jdbprofile or --conf-file to accomplish this.")
-        elif not os.path.exists(neo_conf_file):
-            quit("Error: Neo4j config path does not exist. Used %s."
-                % ("~/.neo4jdbprofile" if args["--conf-file"] is None else "--conf-file"))
     
     # Carry out the program
     # --------------------------------------------------------------------------
     # MODE list
     if args["ls"]:
+        cmd = shlex.split('grep dbms.active_database "%s"' % neo_conf_file)
+        current_db = "=".join(sp.check_output(cmd).split("=")[1:]).strip()
+        
         for db in sorted(glob.iglob(os.path.join(neo_db_basedir, "*.db"))):
-            print os.path.basename(db)
-    
+            db_basename = os.path.basename(db)
+            flag = "*" if db_basename == current_db else ""
+            print "%1s  %s" % (flag, os.path.basename(db_basename))
     # MODE delete
     elif args["rm"]:
         rm_path = os.path.join(neo_db_basedir, args["DATABASE"])
@@ -103,11 +103,10 @@ if __name__ == "__main__":
             confirmation = args["--force"] or confirm_delete()
             if confirmation:
                 shutil.rmtree(rm_path)
-    
     # MODE switch
     # Use sed to swap out the active database
     elif args["sw"]:
         cmd = ("/usr/bin/sed -i " +
                "-e 's/^\\s*dbms\\.active_database.*$/dbms.active_database=%s/' " +
                "\"%s\"")
-        sp.check_call(args = shlex.split(cmd % (args["DATABASE"], neo_conf_file)))
+        sp.check_call(args=shlex.split(cmd % (args["DATABASE"], neo_conf_file)))

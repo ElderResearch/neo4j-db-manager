@@ -12,8 +12,3 @@ The locations of the Neo4j configuration file and database directory can either 
 
 - Python 2.7
 - [docopt](https://github.com/docopt/docopt)
-
-## Future Plans
-
-- Mark currently-selected database in `ls`.
-- Simplify path and conf file checking.
