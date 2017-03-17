@@ -107,6 +107,6 @@ if __name__ == "__main__":
     # Use sed to swap out the active database
     elif args["sw"]:
         cmd = ("/usr/bin/sed -i " +
-               "-e 's/^\\s*dbms\\.active_database.*$/dbms.active_database=%s/' " +
+               "-e 's/^\\s*#*\\s*dbms\\.active_database.*$/dbms.active_database=%s/' " +
                "\"%s\"")
         sp.check_call(args=shlex.split(cmd % (args["DATABASE"], neo_conf_file)))
