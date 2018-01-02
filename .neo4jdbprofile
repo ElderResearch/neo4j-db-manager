@@ -1,4 +1,4 @@
 {
-  "NEO4J_CONF":   "/usr/local/Cellar/neo4j/3.1.2/libexec/conf/neo4j.conf",
-  "NEO4J_DB_DIR": "/usr/local/Cellar/neo4j/3.1.2/libexec/data/databases" 
+  "NEO4J_CONF":   "/usr/local/Cellar/neo4j/3.3.0/libexec/conf/neo4j.conf",
+  "NEO4J_DB_DIR": "/usr/local/Cellar/neo4j/3.3.0/libexec/data/databases" 
 }
