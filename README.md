@@ -10,5 +10,5 @@ The locations of the Neo4j configuration file and database directory can either 
 
 ## Requirements
 
-- Python 2.7
+- Python 3
 - [docopt](https://github.com/docopt/docopt)
